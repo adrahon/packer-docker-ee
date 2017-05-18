@@ -1,0 +1,48 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "docker_ee_url": ""
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/base.sh",
+        "scripts/ntp.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo sh -c 'echo {{user `docker_ee_url`}}/centos > /etc/yum/vars/dockerurl'",
+        "sudo yum install -y yum-utils",
+        "sudo yum-config-manager --add-repo {{user `docker_ee_url`}}/centos/docker-ee.repo"
+      ]
+    },
+    {
+      "type": "file",
+      "destination": "/tmp/",
+      "source": "files/daemon.json"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/docker-ee.sh",
+        "scripts/cleanup.sh"
+    ]
+  }],
+  "builders": [{
+    "type": "amazon-ebs",
+    "communicator": "ssh", 
+    "ssh_pty": "true",
+    "force_deregister": "true",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "eu-west-1",
+    "source_ami": "ami-7abd0209",
+    "instance_type": "t2.micro",
+    "ssh_username": "centos",
+    "ami_name": "docker-ee-17.03-centos"
+  }]
+}
