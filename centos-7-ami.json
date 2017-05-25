@@ -8,8 +8,7 @@
     {
       "type": "shell",
       "scripts": [
-        "scripts/base.sh",
-        "scripts/ntp.sh"
+        "scripts/base.sh"
       ]
     },
     {
